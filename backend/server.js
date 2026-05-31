@@ -12,8 +12,39 @@ connectDB();
 
 const app = express();
 
+const allowedOrigins = new Set(
+  [process.env.CLIENT_URL, process.env.CLIENT_URLS]
+    .filter(Boolean)
+    .flatMap((value) => String(value).split(',').map((origin) => origin.trim()).filter(Boolean))
+);
+
+['http://localhost:5173', 'http://127.0.0.1:5173'].forEach((origin) => allowedOrigins.add(origin));
+
+const isAllowedOrigin = (origin) => {
+  if (!origin) return true;
+  if (allowedOrigins.has(origin)) return true;
+
+  try {
+    const { hostname } = new URL(origin);
+    return hostname.endsWith('.vercel.app') || hostname === 'vercel.app';
+  } catch {
+    return false;
+  }
+};
+
 app.use(helmet());
-app.use(cors({ origin: process.env.CLIENT_URL || '*', credentials: true }));
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (isAllowedOrigin(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error(`CORS blocked for origin: ${origin || 'unknown'}`));
+    },
+    credentials: true,
+  })
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());

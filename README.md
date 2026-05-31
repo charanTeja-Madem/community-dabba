@@ -57,6 +57,7 @@ Set `VITE_API_URL` in `frontend/.env` to point to your backend API.
 - Add environment variables from `backend/.env.example` in the Render dashboard.
 - Set `MONGODB_URI` or `DB_URL` to your MongoDB Atlas connection string, starting with `mongodb://` or `mongodb+srv://`.
 - Do not rely on the local `backend/.env` file for production deploys; Render uses its own environment variables.
+- Set `CLIENT_URL` to your deployed frontend origin, or use `CLIENT_URLS` for a comma-separated allowlist of origins.
 
 ### Frontend on Vercel
 
