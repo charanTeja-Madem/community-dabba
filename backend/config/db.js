@@ -5,6 +5,24 @@ const normalizeConnectionString = (value) => {
 
   const trimmed = String(value).trim();
 
+  const uriMatch = trimmed.match(/mongodb(?:\+srv)?:\/\/\S+/i);
+  if (uriMatch) {
+    return uriMatch[0].replace(/[),;\]]+$/g, '').trim();
+  }
+
+  const keyValueMatch = trimmed.match(/^[A-Za-z_][A-Za-z0-9_]*=(.*)$/);
+  if (keyValueMatch) {
+    const extracted = keyValueMatch[1].trim();
+    const nestedMatch = extracted.match(/mongodb(?:\+srv)?:\/\/\S+/i);
+    if (nestedMatch) {
+      return nestedMatch[0].replace(/[),;\]]+$/g, '').trim();
+    }
+
+    if (extracted) {
+      return extracted.replace(/^['"]|['"]$/g, '').trim();
+    }
+  }
+
   if ((trimmed.startsWith('"') && trimmed.endsWith('"')) || (trimmed.startsWith("'") && trimmed.endsWith("'"))) {
     return trimmed.slice(1, -1).trim();
   }
